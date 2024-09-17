@@ -22,16 +22,19 @@
 <div class="container">
 	<div class="content">
 		<img src="/logo.png" class="logo" alt="logo" />
-		<p class="week-number">
-			Week {weekNumber}
-		</p>
 		<div class="pairs-container">
+			<p class="week-number">
+				Week {weekNumber}
+			</p>
 			{#if pairs.length > 0}
-				<h2 class="pairs-title">This week's pairs:</h2>
 				<ul class="pairs-list">
 					{#each pairs as pair}
 						<li class="pair-item">
-							{teamMembers[pair[0]]} & {teamMembers[pair[1]]}
+							{#if pair[0] === pair[1]}
+								{teamMembers[pair[0]]}
+							{:else}
+								{teamMembers[pair[0]]} <span class="separator">↔</span> {teamMembers[pair[1]]}
+							{/if}
 						</li>
 					{/each}
 				</ul>
@@ -56,52 +59,45 @@
 	}
 
 	.container {
-		max-width: 100%;
+		max-width: 100vw;
 		min-height: 100vh;
-		background-color: #fef3c7;
-		color: #1f2937;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
+		background-color: --var(color-bg-0);
+		color: --var(color-text-0);
 	}
 
 	.content {
-		padding: 1rem;
-		max-width: 48rem;
-		background-color: #ffedd5;
-		flex-grow: 1;
-		display: flex;
-		flex-direction: column;
+		width: 100%;
+		background-color: --var(color-bg-0);
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: 1fr 1fr 1fr;
+		justify-items: center;
 		align-items: center;
 	}
 
 	.logo {
 		width: 32rem;
 		max-width: 100%;
+		grid-column: 1 / span 3;
+		grid-row: 1 / span 1;
 	}
 
 	.week-number {
-		padding-top: 4rem;
-		font-size: 1.25rem;
+		font-size: 2rem;
 		font-weight: bold;
 	}
 
 	.pairs-container {
-		padding: 2rem;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-
-	.pairs-title {
-		font-size: 1.5rem;
-		font-weight: bold;
-		margin-bottom: 1rem;
+		grid-column: 2 / span 1;
+		grid-row: 2 / span 2;
 	}
 
 	.pairs-list {
-		list-style-type: disc;
-		padding-left: 1.5rem;
+		list-style-type: none;
+		padding-left: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 	}
 
 	.pair-item {
@@ -109,7 +105,8 @@
 	}
 
 	.team-container {
-		padding-top: 4rem;
+		grid-column: 1 / span 1;
+		grid-row: 2 / span 2;
 	}
 
 	.team-title {
@@ -120,5 +117,9 @@
 
 	.team-member {
 		margin-bottom: 0.5rem;
+	}
+
+	.separator {
+		color: var(--color-theme-2);
 	}
 </style>

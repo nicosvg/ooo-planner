@@ -73,6 +73,11 @@
 		grid-template-rows: 1fr 1fr 1fr;
 		justify-items: center;
 		align-items: center;
+
+		@media screen and (max-width: 480px) {
+			grid-template-columns: 1fr;
+			grid-template-rows: 1fr 1fr 1fr;
+		}
 	}
 
 	.logo {
@@ -121,5 +126,20 @@
 
 	.separator {
 		color: var(--color-theme-2);
+	}
+
+	@media screen and (max-width: 480px) {
+		.team-container {
+			grid-column: 1 / span 1;
+			grid-row: 3 / span 1;
+		}
+		.pairs-container {
+			grid-column: 1 / span 2;
+			grid-row: 2 / span 1;
+		}
+		.content {
+			grid-template-columns: 1fr;
+			grid-template-rows: 1fr 1fr 1fr;
+		}
 	}
 </style>

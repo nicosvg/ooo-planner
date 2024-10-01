@@ -53,9 +53,9 @@
 		<img src="/logo.png" class="logo" alt="logo" />
 		<div class="pairs-container">
 			<p class="week-number">
+				<button class="week-button"  on:click={decrementWeek}>◁</button>
 				Week {weekNumber + offset}
-				<button on:click={decrementWeek}>Previous Week</button>
-				<button on:click={incrementWeek}>Next Week</button>
+				<button class="week-button" on:click={incrementWeek}>▷</button>
 			</p>
 			{#if pairs.length > 0}
 				<ul class="pairs-list">
@@ -176,5 +176,13 @@
 			grid-template-columns: 1fr;
 			grid-template-rows: 1fr 1fr 1fr;
 		}
+	}
+
+	.week-button {
+		background-color: transparent;
+		border: none;
+		color: var(--color-theme-2);
+		font-size: 1.5rem;
+		cursor: pointer;
 	}
 </style>

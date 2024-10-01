@@ -5,6 +5,7 @@
 	import { getPairs } from '../pairs';
 
 	let weekNumber = getWeek(new Date());
+	
 	let teamMembers: string[] = [];
 	let pairs: number[][] = [];
 	let newMember = '';
@@ -41,6 +42,15 @@
 			pairs = getPairs(teamMembers.length, weekNumber +offset);
 		}
 	}
+
+		function copyUrlToClipboard() {
+			const url = window.location.href;
+			navigator.clipboard.writeText(url).then(() => {
+				alert('URL copied to clipboard');
+			}).catch(err => {
+				console.error('Failed to copy URL: ', err);
+			});
+		}
 </script>
 
 <svelte:head>
@@ -85,6 +95,9 @@
 				<button on:click={addMember}>Add</button>
 			</div>
 		</div>
+	</div>
+	<div class="copy-url-container">
+		<button on:click={copyUrlToClipboard}>Copy URL</button>
 	</div>
 </div>
 
@@ -185,4 +198,24 @@
 		font-size: 1.5rem;
 		cursor: pointer;
 	}
+		.copy-url-container {
+			grid-column: 1 / span 2;
+			grid-row: 3 / span 1;
+			margin-top: 1rem;
+			text-align: center;
+		}
+
+		.copy-url-container button {
+			background-color: var(--color-theme-2);
+			color: white;
+			border: none;
+			padding: 0.5rem 1rem;
+			font-size: 1rem;
+			cursor: pointer;
+			border-radius: 0.25rem;
+		}
+
+		.copy-url-container button:hover {
+			background-color: var(--color-theme-1);
+		}
 </style>

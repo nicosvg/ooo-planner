@@ -4,14 +4,31 @@
 	import { onMount } from 'svelte';
 	import { getPairs } from '../pairs';
 
-	const weekNumber = getWeek(new Date());
+	let weekNumber = getWeek(new Date());
 	let teamMembers: string[] = [];
 	let pairs: number[][] = [];
 	let newMember = '';
+	let offset = 0;
+
+	function updatePairs(){
+		pairs = getPairs(teamMembers.length, weekNumber + offset);
+	}
+
+	function incrementWeek() {
+		weekNumber += 1;
+		updatePairs()
+	}
+
+	function decrementWeek() {
+		weekNumber -= 1;
+		updatePairs()
+	}
 
 	onMount(() => {
 		teamMembers = $page.url.searchParams.get('team')?.split(',').sort() || [];
-		pairs = getPairs(teamMembers.length, weekNumber);
+		const offsetParam = $page.url.searchParams.get('offset') || '0'
+		offset = parseInt(offsetParam);
+		updatePairs()
 	});
 
 	function addMember() {
@@ -21,7 +38,7 @@
 			searchParams.set('team', teamMembers.join(','));
 			window.history.replaceState({}, '', `${$page.url.pathname}?${searchParams.toString()}`);
 			newMember = '';
-			pairs = getPairs(teamMembers.length, weekNumber);
+			pairs = getPairs(teamMembers.length, weekNumber +offset);
 		}
 	}
 </script>
@@ -36,7 +53,9 @@
 		<img src="/logo.png" class="logo" alt="logo" />
 		<div class="pairs-container">
 			<p class="week-number">
-				Week {weekNumber}
+				Week {weekNumber + offset}
+				<button on:click={decrementWeek}>Previous Week</button>
+				<button on:click={incrementWeek}>Next Week</button>
 			</p>
 			{#if pairs.length > 0}
 				<ul class="pairs-list">
@@ -62,7 +81,6 @@
 				</div>
 			{/each}
 			<div>
-				<!-- Add a field and a button to add a new member to the query param 'team'  -->
 				<input type="text" bind:value={newMember} placeholder="Add team member" />
 				<button on:click={addMember}>Add</button>
 			</div>

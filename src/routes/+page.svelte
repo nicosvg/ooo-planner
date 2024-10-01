@@ -1,17 +1,29 @@
 <script lang="ts">
-	import { getWeek } from 'date-fns/getWeek';
-	import { getPairs } from '../pairs';
-	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { getWeek } from 'date-fns/getWeek';
+	import { onMount } from 'svelte';
+	import { getPairs } from '../pairs';
 
 	const weekNumber = getWeek(new Date());
 	let teamMembers: string[] = [];
 	let pairs: number[][] = [];
+	let newMember = '';
 
 	onMount(() => {
 		teamMembers = $page.url.searchParams.get('team')?.split(',').sort() || [];
 		pairs = getPairs(teamMembers.length, weekNumber);
 	});
+
+	function addMember() {
+		if (newMember.trim() && !teamMembers.includes(newMember.trim())) {
+			teamMembers = [...teamMembers, newMember.trim()].sort();
+			const searchParams = new URLSearchParams($page.url.searchParams);
+			searchParams.set('team', teamMembers.join(','));
+			window.history.replaceState({}, '', `${$page.url.pathname}?${searchParams.toString()}`);
+			newMember = '';
+			pairs = getPairs(teamMembers.length, weekNumber);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -49,6 +61,11 @@
 					{member}
 				</div>
 			{/each}
+			<div>
+				<!-- Add a field and a button to add a new member to the query param 'team'  -->
+				<input type="text" bind:value={newMember} placeholder="Add team member" />
+				<button on:click={addMember}>Add</button>
+			</div>
 		</div>
 	</div>
 </div>

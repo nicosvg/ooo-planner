@@ -5,31 +5,37 @@
 	import { getPairs } from '../pairs';
 
 	let weekNumber = getWeek(new Date());
-	
+
 	let teamMembers: string[] = [];
 	let pairs: number[][] = [];
 	let newMember = '';
 	let offset = 0;
 
-	function updatePairs(){
+	function updatePairs() {
 		pairs = getPairs(teamMembers.length, weekNumber + offset);
 	}
 
 	function incrementWeek() {
 		weekNumber += 1;
-		updatePairs()
+		if (weekNumber > 52) {
+			weekNumber = 1;
+		}
+		updatePairs();
 	}
 
 	function decrementWeek() {
 		weekNumber -= 1;
-		updatePairs()
+		if (weekNumber < 1) {
+			weekNumber = 52;
+		}
+		updatePairs();
 	}
 
 	onMount(() => {
 		teamMembers = $page.url.searchParams.get('team')?.split(',').sort() || [];
-		const offsetParam = $page.url.searchParams.get('offset') || '0'
+		const offsetParam = $page.url.searchParams.get('offset') || '0';
 		offset = parseInt(offsetParam);
-		updatePairs()
+		updatePairs();
 	});
 
 	function addMember() {
@@ -39,18 +45,21 @@
 			searchParams.set('team', teamMembers.join(','));
 			window.history.replaceState({}, '', `${$page.url.pathname}?${searchParams.toString()}`);
 			newMember = '';
-			pairs = getPairs(teamMembers.length, weekNumber +offset);
+			pairs = getPairs(teamMembers.length, weekNumber + offset);
 		}
 	}
 
-		function copyUrlToClipboard() {
-			const url = window.location.href;
-			navigator.clipboard.writeText(url).then(() => {
+	function copyUrlToClipboard() {
+		const url = window.location.href;
+		navigator.clipboard
+			.writeText(url)
+			.then(() => {
 				alert('URL copied to clipboard');
-			}).catch(err => {
+			})
+			.catch((err) => {
 				console.error('Failed to copy URL: ', err);
 			});
-		}
+	}
 </script>
 
 <svelte:head>
@@ -63,7 +72,7 @@
 		<img src="/logo.png" class="logo" alt="logo" />
 		<div class="pairs-container">
 			<p class="week-number">
-				<button class="week-button"  on:click={decrementWeek}>◁</button>
+				<button class="week-button" on:click={decrementWeek}>◁</button>
 				Week {weekNumber + offset}
 				<button class="week-button" on:click={incrementWeek}>▷</button>
 			</p>
@@ -198,24 +207,24 @@
 		font-size: 1.5rem;
 		cursor: pointer;
 	}
-		.copy-url-container {
-			grid-column: 1 / span 2;
-			grid-row: 3 / span 1;
-			margin-top: 1rem;
-			text-align: center;
-		}
+	.copy-url-container {
+		grid-column: 1 / span 2;
+		grid-row: 3 / span 1;
+		margin-top: 1rem;
+		text-align: center;
+	}
 
-		.copy-url-container button {
-			background-color: var(--color-theme-2);
-			color: white;
-			border: none;
-			padding: 0.5rem 1rem;
-			font-size: 1rem;
-			cursor: pointer;
-			border-radius: 0.25rem;
-		}
+	.copy-url-container button {
+		background-color: var(--color-theme-2);
+		color: white;
+		border: none;
+		padding: 0.5rem 1rem;
+		font-size: 1rem;
+		cursor: pointer;
+		border-radius: 0.25rem;
+	}
 
-		.copy-url-container button:hover {
-			background-color: var(--color-theme-1);
-		}
+	.copy-url-container button:hover {
+		background-color: var(--color-theme-1);
+	}
 </style>

@@ -49,6 +49,12 @@
 		}
 	}
 
+	function handleEnterKey(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			addMember();
+		}
+	}
+
 	function removeMember(member: string) {
 		teamMembers = teamMembers.filter((m) => m !== member);
 		const searchParams = new URLSearchParams($page.url.searchParams);
@@ -109,7 +115,12 @@
 				</div>
 			{/each}
 			<div>
-				<input type="text" bind:value={newMember} placeholder="Add team member" />
+				<input
+					type="text"
+					bind:value={newMember}
+					placeholder="Add team member"
+					on:keydown={handleEnterKey}
+				/>
 				<button on:click={addMember}>Add</button>
 			</div>
 		</div>

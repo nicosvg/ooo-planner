@@ -49,6 +49,14 @@
 		}
 	}
 
+	function removeMember(member: string) {
+		teamMembers = teamMembers.filter((m) => m !== member);
+		const searchParams = new URLSearchParams($page.url.searchParams);
+		searchParams.set('team', teamMembers.join(','));
+		window.history.replaceState({}, '', `${$page.url.pathname}?${searchParams.toString()}`);
+		updatePairs();
+	}
+
 	function copyUrlToClipboard() {
 		const url = window.location.href;
 		navigator.clipboard
@@ -96,7 +104,8 @@
 			<h2 class="team-title">Team</h2>
 			{#each teamMembers as member}
 				<div class="team-member">
-					{member}
+					<span>{member}</span>
+					<button class="remove-button" on:click={() => removeMember(member)}>-</button>
 				</div>
 			{/each}
 			<div>
@@ -179,6 +188,9 @@
 
 	.team-member {
 		margin-bottom: 0.5rem;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
 	}
 
 	.separator {
@@ -226,5 +238,13 @@
 
 	.copy-url-container button:hover {
 		background-color: var(--color-theme-1);
+	}
+
+	.remove-button {
+		background-color: transparent;
+		border: none;
+		color: var(--color-theme-2);
+		font-size: 1.5rem;
+		cursor: pointer;
 	}
 </style>

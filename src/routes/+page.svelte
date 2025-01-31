@@ -1,15 +1,18 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import { getWeek } from 'date-fns/getWeek';
 	import { onMount } from 'svelte';
 	import { getPairs } from '../pairs';
+	import type { PageProps } from './$types';
+	import { page } from '$app/state';
 
-	let weekNumber = getWeek(new Date());
+	let { data }: PageProps = $props();
+	let weekNumber = $state(getWeek(new Date()));
 
-	let teamMembers: string[] = [];
-	let pairs: number[][] = [];
-	let newMember = '';
-	let offset = 0;
+	let teamMembers: string[] = $state(data.team as string[]);
+	let pairs: number[][] = $state([]);
+	let newMember = $state('');
+	let offset = $state(0);
+	let teamId: string = '';
 
 	function updatePairs() {
 		pairs = getPairs(teamMembers.length, weekNumber + offset);
@@ -32,8 +35,13 @@
 	}
 
 	onMount(() => {
-		teamMembers = $page.url.searchParams.get('team')?.split(',').sort() || [];
-		const offsetParam = $page.url.searchParams.get('offset') || '0';
+		teamId = page.url.searchParams.get('id') || null;
+		if (teamId !== null) {
+			updatePairs();
+			return;
+		}
+		teamMembers = page.url.searchParams.get('team')?.split(',').sort() || [];
+		const offsetParam = page.url.searchParams.get('offset') || '0';
 		offset = parseInt(offsetParam);
 		updatePairs();
 	});
@@ -41,9 +49,6 @@
 	function addMember() {
 		if (newMember.trim() && !teamMembers.includes(newMember.trim())) {
 			teamMembers = [...teamMembers, newMember.trim()].sort();
-			const searchParams = new URLSearchParams($page.url.searchParams);
-			searchParams.set('team', teamMembers.join(','));
-			window.history.replaceState({}, '', `${$page.url.pathname}?${searchParams.toString()}`);
 			newMember = '';
 			pairs = getPairs(teamMembers.length, weekNumber + offset);
 		}
@@ -57,10 +62,19 @@
 
 	function removeMember(member: string) {
 		teamMembers = teamMembers.filter((m) => m !== member);
-		const searchParams = new URLSearchParams($page.url.searchParams);
-		searchParams.set('team', teamMembers.join(','));
-		window.history.replaceState({}, '', `${$page.url.pathname}?${searchParams.toString()}`);
 		updatePairs();
+	}
+
+	async function saveTeam() {
+		const res = await fetch('/api/team', {
+			method: 'POST',
+			body: JSON.stringify({ team: teamMembers, id: teamId })
+		});
+		const body = await res.json();
+		const searchParams = new URLSearchParams(page.url.searchParams);
+		searchParams.set('id', body.id);
+		window.history.replaceState({}, '', `${page.url.pathname}?${searchParams.toString()}`);
+		teamId = body.id;
 	}
 
 	function copyUrlToClipboard() {
@@ -86,9 +100,9 @@
 		<img src="/logo.png" class="logo" alt="logo" />
 		<div class="pairs-container">
 			<p class="week-number">
-				<button class="week-button" on:click={decrementWeek}>◁</button>
+				<button class="week-button" onclick={decrementWeek}>◁</button>
 				Week {weekNumber + offset}
-				<button class="week-button" on:click={incrementWeek}>▷</button>
+				<button class="week-button" onclick={incrementWeek}>▷</button>
 			</p>
 			{#if pairs.length > 0}
 				<ul class="pairs-list">
@@ -111,7 +125,7 @@
 			{#each teamMembers as member}
 				<div class="team-member">
 					<span>{member}</span>
-					<button class="remove-button" on:click={() => removeMember(member)}>-</button>
+					<button class="remove-button" onclick={() => removeMember(member)}>-</button>
 				</div>
 			{/each}
 			<div>
@@ -119,14 +133,15 @@
 					type="text"
 					bind:value={newMember}
 					placeholder="Add team member"
-					on:keydown={handleEnterKey}
+					onkeydown={handleEnterKey}
 				/>
-				<button on:click={addMember}>Add</button>
+				<button onclick={addMember}>Add</button>
 			</div>
 		</div>
 	</div>
 	<div class="copy-url-container">
-		<button on:click={copyUrlToClipboard}>Copy URL</button>
+		<button onclick={copyUrlToClipboard}>Copy URL</button>
+		<button onclick={saveTeam}>Save team</button>
 	</div>
 </div>
 
